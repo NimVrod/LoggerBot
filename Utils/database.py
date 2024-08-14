@@ -4,6 +4,7 @@ import os
 first_time = {"VoiceLogs": 0,
               "ChatLogs": 0,
               "AttachmentLogs": 0,
+              "JoinLogs": 0,
               }
 
 def create_database(guild_id: int) -> None:

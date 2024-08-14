@@ -65,6 +65,10 @@ class SettingsView(discord.ui.View):
     async def attachmentlogs_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
         await self.response(button, interaction,)
 
+    @discord.ui.button(label="JoinLogs", style=discord.ButtonStyle.green, emoji="📝")
+    async def joinlogs_callback(self, button: discord.ui.Button, interaction: discord.Interaction):
+        await self.response(button, interaction,)
+
 class MyCog(commands.Cog):
     def __init__(self, bot):
         self.bot = bot

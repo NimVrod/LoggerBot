@@ -1,3 +1,5 @@
+from enum import member
+
 import discord
 import discord.ext.commands as commands
 from Utils import log, database
@@ -12,17 +14,17 @@ class Chatlogs(commands.Cog):
         return "\n".join([attachment.url for attachment in attachments])
 
     @commands.Cog.listener()
-    async def on_message_delete(self, messege: discord.Message):
+    async def on_message_delete(self, message: discord.Message):
         print("Message Deleted")
-        guildsettings = database.read_database(messege.guild.id)
+        guildsettings = database.read_database(message.guild.id)
 
-        if guildsettings["ChatLogs"] == 0:
+        if guildsettings["ChatLogs"] == 0 or message.author.bot:
             return
 
-        em = discord.Embed(title="Message Deleted", description=f"{messege.author.mention} deleted in {messege.channel.mention}", color=discord.Color.red(), thumbnail=messege.author.avatar.url)
-        em.add_field(name="Content", value=messege.content, inline=False)
-        em.add_field(name="Attachments", value=self.attachmets_to_url_string(messege.attachments), inline=False)
-        await log.send_log(em, messege.guild.get_channel(guildsettings["ChatLogs"]))
+        em = discord.Embed(title="Message Deleted", description=f"{message.author.mention} deleted in {message.channel.mention}", color=discord.Color.red(), thumbnail=message.author.avatar.url)
+        em.add_field(name="Content", value=message.content, inline=False)
+        em.add_field(name="Attachments", value=self.attachmets_to_url_string(message.attachments), inline=False)
+        await log.send_log(em, message.guild.get_channel(guildsettings["ChatLogs"]))
 
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, messages: list[discord.Message]):
@@ -44,7 +46,7 @@ class Chatlogs(commands.Cog):
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
         guildsettings = database.read_database(before.guild.id)
 
-        if guildsettings["ChatLogs"] == 0:
+        if guildsettings["ChatLogs"] == 0 or before.author.bot:
             return
 
         em = discord.Embed(title="Message Edited", description=f"{before.author.mention} edited in {before.channel.mention}", color=discord.Color.yellow(), thumbnail=before.author.avatar.url)
@@ -58,7 +60,7 @@ class Chatlogs(commands.Cog):
     async def on_message(self, message : discord.Message):
         guildsettings = database.read_database(message.guild.id)
 
-        if guildsettings["AttachmentLogs"] == 0:
+        if guildsettings["AttachmentLogs"] == 0 or message.author.bot:
             return
 
         if message.attachments:

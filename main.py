@@ -8,7 +8,7 @@ from pyexpat.errors import messages
 
 from Utils import database
 
-from Cogs import settings, voicelogs, chatlogs
+from Cogs import settings, voicelogs, chatlogs, joinlogs
 
 intents = discord.Intents(messages=True, guilds=True, members=True, message_content=True, voice_states=True)
 logging.basicConfig(level=logging.INFO)
@@ -18,6 +18,7 @@ bot = commands.Bot(command_prefix='$$', intents=intents)
 bot.add_cog(settings.MyCog(bot))
 bot.add_cog(voicelogs.VoiceLogs(bot))
 bot.add_cog(chatlogs.Chatlogs(bot))
+bot.add_cog(joinlogs.JoinLogs(bot))
 
 @bot.event
 async def on_ready():
