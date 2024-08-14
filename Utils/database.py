@@ -1,7 +1,10 @@
 import json
 import os
 
-first_time = {"VoiceLogs": 0}
+first_time = {"VoiceLogs": 0,
+              "ChatLogs": 0,
+              "AttachmentLogs": 0,
+              }
 
 def create_database(guild_id: int) -> None:
     with open(f"Storage/{guild_id}.json", "w") as file:
