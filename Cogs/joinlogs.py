@@ -31,3 +31,34 @@ class JoinLogs(commands.Cog):
                     em.add_field(name="Invite", value=f"Invited by {invite.inviter.mention} with code {invite.code}")
                     break
         await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
+
+
+    @commands.Cog.listener()
+    async def on_member_remove(self, member):
+        guildsettings = database.read_database(member.guild.id)
+        if guildsettings["JoinLogs"] == 0:
+            return
+
+
+        #Calculate whether the member left or was kicked
+        async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
+            if entry.target.id == member.id:
+                em = discord.Embed(title="Member Kicked", description=f"{member.mention} was kicked from the server",
+                                   color=discord.Color.red(), thumbnail=member.avatar.url)
+                em.add_field(name="Kicked by", value=entry.user.mention)
+                await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
+                return
+
+        #Calculate whether the member left or was banned
+        async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.ban):
+            if entry.target.id == member.id:
+                em = discord.Embed(title="Member Banned", description=f"{member.mention} was banned from the server",
+                                   color=discord.Color.red(), thumbnail=member.avatar.url)
+                em.add_field(name="Banned by", value=entry.user.mention)
+                await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
+                return
+
+
+        #Member left
+        em = discord.Embed(title="Member Left", description=f"{member.mention} left the server", color=discord.Color.red(), thumbnail=member.avatar.url)
+        await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
