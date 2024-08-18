@@ -20,12 +20,12 @@ class VoiceLogs(commands.Cog):
 
         if before.channel is None and after.channel is not None:
             #First join voice channel
-            em = discord.Embed(title=f"Voice join", description=f"<@{member.id}> joined {after.channel.mention}", color=discord.Color.green(), thumbnail=member.avatar.url)
+            em = discord.Embed(title=f"Voice join", description=f"<@{member.id}> joined {after.channel.mention}", color=discord.Color.green(), thumbnail=member.display_avatar.url)
             self.joins[member.id] = datetime.datetime.now()
             await log.send_log(em, member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"]))
         elif before.channel is not None and after.channel is None:
             #Left voice channel
-            em = discord.Embed(title="Voice Left", description=f"{member.mention} left {before.channel.mention}", color=discord.Color.red(), thumbnail=member.avatar.url)
+            em = discord.Embed(title="Voice Left", description=f"{member.mention} left {before.channel.mention}", color=discord.Color.red(), thumbnail=member.display_avatar.url)
             if member.id in self.joins:
                 time_spent: datetime.timedelta = datetime.datetime.now() - self.joins[member.id]
                 em.add_field(name="Time spent", value=f"Spent time in voice: {time_delta_to_string(time_spent)}", inline=False)
@@ -33,7 +33,7 @@ class VoiceLogs(commands.Cog):
         elif before.channel != after.channel:
             #TODO: Add a check if user was moved or switched by themselves
 
-            em = discord.Embed(title="Voice Switch", description=f"<@{member.id}> switched from {before.channel.mention} to {after.channel.mention}", color=discord.Color.yellow(), thumbnail=member.avatar.url)
+            em = discord.Embed(title="Voice Switch", description=f"<@{member.id}> switched from {before.channel.mention} to {after.channel.mention}", color=discord.Color.yellow(), thumbnail=member.display_avatar.url)
             await log.send_log(em, member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"]))
             pass
 

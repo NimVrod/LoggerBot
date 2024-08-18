@@ -7,6 +7,9 @@ class JoinLogs(commands.Cog):
         self.bot: commands.Bot = bot
         self.invites = {}
 
+    async def set_invites(self, guild):
+        self.invites[guild.id] = await guild.invites()
+
     @commands.Cog.listener()
     async def on_ready(self):
         for guild in self.bot.guilds:
@@ -16,12 +19,17 @@ class JoinLogs(commands.Cog):
                 self.invites[guild.id] = await guild.invites()
 
     @commands.Cog.listener()
+    async def on_invite_create(self, invite):
+        self.invites[invite.guild.id] = await invite.guild.invites()
+
+
+    @commands.Cog.listener()
     async def on_member_join(self, member):
         guildsettings = database.read_database(member.guild.id)
         if guildsettings["JoinLogs"] == 0:
             return
 
-        em = discord.Embed(title="Member Joined", description=f"{member.mention} joined the server", color=discord.Color.green(), thumbnail=member.avatar.url)
+        em = discord.Embed(title="Member Joined", description=f"{member.mention} joined the server", color=discord.Color.green(), thumbnail=member.display_avatar.url)
 
         #Calcualte invite code]
         invites = await member.guild.invites()
@@ -44,7 +52,7 @@ class JoinLogs(commands.Cog):
         async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
             if entry.target.id == member.id:
                 em = discord.Embed(title="Member Kicked", description=f"{member.mention} was kicked from the server",
-                                   color=discord.Color.red(), thumbnail=member.avatar.url)
+                                   color=discord.Color.red(), thumbnail=member.display_avatar.url)
                 em.add_field(name="Kicked by", value=entry.user.mention)
                 await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
                 return
@@ -53,12 +61,12 @@ class JoinLogs(commands.Cog):
         async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.ban):
             if entry.target.id == member.id:
                 em = discord.Embed(title="Member Banned", description=f"{member.mention} was banned from the server",
-                                   color=discord.Color.red(), thumbnail=member.avatar.url)
+                                   color=discord.Color.red(), thumbnail=member.display_avatar.url)
                 em.add_field(name="Banned by", value=entry.user.mention)
                 await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
                 return
 
 
         #Member left
-        em = discord.Embed(title="Member Left", description=f"{member.mention} left the server", color=discord.Color.red(), thumbnail=member.avatar.url)
+        em = discord.Embed(title="Member Left", description=f"{member.mention} left the server", color=discord.Color.red(), thumbnail=member.display_avatar.url)
         await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))

@@ -1,5 +1,3 @@
-from enum import member
-
 import discord
 import discord.ext.commands as commands
 from Utils import log, database
@@ -15,13 +13,12 @@ class Chatlogs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
-        print("Message Deleted")
         guildsettings = database.read_database(message.guild.id)
 
         if guildsettings["ChatLogs"] == 0 or message.author.bot:
             return
 
-        em = discord.Embed(title="Message Deleted", description=f"{message.author.mention} deleted in {message.channel.mention}", color=discord.Color.red(), thumbnail=message.author.avatar.url)
+        em = discord.Embed(title="Message Deleted", description=f"{message.author.mention} deleted in {message.channel.mention}", color=discord.Color.red(), thumbnail=message.author.display_avatar.url)
         em.add_field(name="Content", value=message.content, inline=False)
         em.add_field(name="Attachments", value=self.attachmets_to_url_string(message.attachments), inline=False)
         await log.send_log(em, message.guild.get_channel(guildsettings["ChatLogs"]))
@@ -49,7 +46,7 @@ class Chatlogs(commands.Cog):
         if guildsettings["ChatLogs"] == 0 or before.author.bot:
             return
 
-        em = discord.Embed(title="Message Edited", description=f"{before.author.mention} edited in {before.channel.mention}", color=discord.Color.yellow(), thumbnail=before.author.avatar.url)
+        em = discord.Embed(title="Message Edited", description=f"{before.author.mention} edited in {before.channel.mention}", color=discord.Color.yellow(), thumbnail=before.author.display_avatar.url)
         em.add_field(name="Before", value=before.content, inline=False)
         em.add_field("Before Attachments", value=self.attachmets_to_url_string(before.attachments), inline=False)
         em.add_field(name="After", value=after.content, inline=False)
@@ -66,7 +63,7 @@ class Chatlogs(commands.Cog):
         if message.attachments:
             em = discord.Embed(title="Attachment Log",
                                description=f"{message.author.mention} attachments in {message.channel.mention}",
-                               color=discord.Color.green(), thumbnail=message.author.avatar.url)
+                               color=discord.Color.green(), thumbnail=message.author.display_avatar.url)
             await log.send_log(em, message.guild.get_channel(guildsettings["AttachmentLogs"]))
             channel = message.guild.get_channel(guildsettings["AttachmentLogs"])
             await channel.send(files=[await x.to_file() for x in message.attachments])
