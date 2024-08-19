@@ -106,6 +106,20 @@ class MyCog(commands.Cog):
         database.write_database(ctx.guild.id, guildSettings)
         await ctx.respond(f"Set the {option} to {channel.mention}")
 
+    @commands.Cog.listener()
+    async def on_member_join(self, member: discord.Member):
+        guildSettings = database.read_database(member.guild.id)
+        em = discord.Embed(title=f"Welecome to {member.guild.name}", description="Currently active logs:\n", color=discord.Color.green())
+        for key in guildSettings:
+            if guildSettings[key] != 0:
+                em.description += f"✅ {key} active\n"
+            else:
+                em.description += f"❌ {key} inactive\n"
+        em.set_footer(text="Find out more using /settings")
+        await member.send(embed=em)
+
+
+
 
 async def setup(bot):
     await bot.add_cog(MyCog(bot))
