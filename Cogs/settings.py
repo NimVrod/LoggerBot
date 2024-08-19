@@ -88,7 +88,11 @@ class MyCog(commands.Cog):
             database.create_database(ctx.guild.id)
 
         em = discord.Embed(title="Settings", description="Change the settings of the bot", color=discord.Color.green())
-        em.add_field(name="VoiceLogs", value="See who,when and which voice channel did they join", inline=False)
+        em.add_field(name="VoiceLogs", value="See who,when and which voice channel did they join", inline=True)
+        em.add_field(name="ChatLogs", value="See who deleted, edited or bulk deleted messages", inline=True)
+        em.add_field(name="AttachmentLogs", value="See who uploaded attachments", inline=True)
+        em.add_field(name="JoinLogs", value="See who joined and who invited them", inline=True)
+        em.add_field(name="AuditLogs", value="See who did what in the server", inline=True)
 
         view = SettingsView(ctx.guild.id, self.bot)
         await ctx.respond(embed=em, view=view)
