@@ -34,7 +34,7 @@ class SettingsView(discord.ui.View):
             if key == button.label:
                 if self.guildSettings[key] == 0:
                     try:
-                        channel = await interaction.guild.create_text_channel(name=button.label, reason=f"Set by {interaction.user.name}")
+                        channel = await interaction.guild.create_text_channel(name=button.label, reason=f"Set by {interaction.user.name}", overwrites={interaction.guild.default_role: discord.PermissionOverwrite(read_messages=False)})
                     except discord.Forbidden:
                         await interaction.response.send_message("I don't have the permission to create a channel", ephemeral=True)
                         return
