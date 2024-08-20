@@ -82,10 +82,19 @@ class MyCog(commands.Cog):
     def __init__(self, bot):
         self.bot: commands.Bot = bot
 
+
     @commands.slash_command(name="settings", description="Change the settings of the bot")
     async def settings(self, ctx):
+
         if not database.check_if_guild_in_db(ctx.guild.id):
             database.create_database(ctx.guild.id)
+
+        guildSettings = database.read_database(ctx.guild.id)
+        guild: discord.Guild = ctx.guild
+        for key in guildSettings:
+            channel = await guild.fetch_channel(guildSettings[key])
+            if channel is None:
+                guildSettings[key] = 0
 
         em = discord.Embed(title="Settings", description="Change the settings of the bot", color=discord.Color.green())
         em.add_field(name="VoiceLogs", value="See who,when and which voice channel did they join", inline=True)
