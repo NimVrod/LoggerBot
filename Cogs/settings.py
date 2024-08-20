@@ -92,9 +92,11 @@ class MyCog(commands.Cog):
         guildSettings = database.read_database(ctx.guild.id)
         guild: discord.Guild = ctx.guild
         for key in guildSettings:
-            channel = await guild.fetch_channel(guildSettings[key])
-            if channel is None:
+            try:
+                channel = await guild.fetch_channel(guildSettings[key])
+            except discord.NotFound:
                 guildSettings[key] = 0
+                continue
 
         em = discord.Embed(title="Settings", description="Change the settings of the bot", color=discord.Color.green())
         em.add_field(name="VoiceLogs", value="See who,when and which voice channel did they join", inline=True)
@@ -121,6 +123,8 @@ class MyCog(commands.Cog):
 
     @commands.Cog.listener()
     async def on_member_join(self, member: discord.Member):
+        if not database.check_if_guild_in_db(member.guild.id):
+            database.create_database(member.guild.id)
         guildSettings = database.read_database(member.guild.id)
         em = discord.Embed(title=f"Welecome to {member.guild.name}", description="Currently active logs:\n", color=discord.Color.green())
         for key in guildSettings:
