@@ -24,6 +24,9 @@ bot.add_cog(auditlogs.AuditLogs(bot))
 @bot.event
 async def on_ready():
     print("Bot running, guilds: ", len(bot.guilds))
+    for guild in bot.guilds:
+        if not database.check_if_guild_in_db(guild.id):
+            database.create_database(guild.id)
     database.check_for_changes()
 
 load_dotenv()
