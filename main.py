@@ -35,6 +35,18 @@ async def ping(ctx):
     em = discord.Embed(title="Pong!", description=f"{round(bot.latency * 1000)}ms", color=discord.Color.green())
     await ctx.respond(embed=em)
 
+
+@bot.slash_command(name="eval", description="Evaluate code")
+@commands.is_owner()
+async def evalCommand(ctx, code: str):
+    try:
+        result = eval(code)
+        em = discord.Embed(title="Eval", description=result, color=discord.Color.green())
+        await ctx.respond(embed=em)
+    except Exception as e:
+        em = discord.Embed(title="Error", description=e, color=discord.Color.red())
+        await ctx.respond(embed=em)
+
 load_dotenv()
 bot.run(os.getenv('TOKEN'))
 
