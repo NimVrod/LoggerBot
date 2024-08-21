@@ -24,10 +24,16 @@ bot.add_cog(auditlogs.AuditLogs(bot))
 @bot.event
 async def on_ready():
     print("Bot running, guilds: ", len(bot.guilds))
+    await bot.change_presence(activity=discord.Game(name="Guilds: " + str(len(bot.guilds))))
     for guild in bot.guilds:
         if not database.check_if_guild_in_db(guild.id):
             database.create_database(guild.id)
     database.check_for_changes()
+
+@bot.slash_command(name="ping", description="Check the bot's latency")
+async def ping(ctx):
+    em = discord.Embed(title="Pong!", description=f"{round(bot.latency * 1000)}ms", color=discord.Color.green())
+    await ctx.respond(embed=em)
 
 load_dotenv()
 bot.run(os.getenv('TOKEN'))
