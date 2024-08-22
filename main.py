@@ -36,7 +36,7 @@ async def on_ready():
             database.create_database(guild.id)
     database.check_for_changes()
     changePrescence = 10*60*1000
-    await asyncio.wait(changePrescence)
+    await asyncio.sleep(changePrescence)
     presence_update.start()
 
 @bot.slash_command(name="ping", description="Check the bot's latency")
