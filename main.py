@@ -2,6 +2,7 @@ import discord
 import os
 from dotenv import load_dotenv
 import discord.ext.commands as commands
+import discord.ext.tasks as tasks
 import logging
 
 from pyexpat.errors import messages
@@ -21,10 +22,14 @@ bot.add_cog(chatlogs.Chatlogs(bot))
 bot.add_cog(joinlogs.JoinLogs(bot))
 bot.add_cog(auditlogs.AuditLogs(bot))
 
+@tasks.loop(minutes=10)
+async def presence_update():
+    await bot.change_presence(activity=discord.Game(name="Guilds: " + str(len(bot.guilds))))
+
 @bot.event
 async def on_ready():
     print("Bot running, guilds: ", len(bot.guilds))
-    await bot.change_presence(activity=discord.Game(name="Guilds: " + str(len(bot.guilds))))
+    presence_update.start()
     for guild in bot.guilds:
         if not database.check_if_guild_in_db(guild.id):
             database.create_database(guild.id)
