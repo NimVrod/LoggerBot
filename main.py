@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import discord.ext.commands as commands
 import discord.ext.tasks as tasks
 import logging
+import asyncio
 
 from pyexpat.errors import messages
 
@@ -29,11 +30,14 @@ async def presence_update():
 @bot.event
 async def on_ready():
     print("Bot running, guilds: ", len(bot.guilds))
-    presence_update.start()
+    await bot.change_presence(activity=discord.Game(name="Recently updated"))
     for guild in bot.guilds:
         if not database.check_if_guild_in_db(guild.id):
             database.create_database(guild.id)
     database.check_for_changes()
+    changePrescence = 10*60*1000
+    await asyncio.wait(changePrescence)
+    presence_update.start()
 
 @bot.slash_command(name="ping", description="Check the bot's latency")
 async def ping(ctx):
