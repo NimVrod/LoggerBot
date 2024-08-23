@@ -38,6 +38,7 @@ class JoinLogs(commands.Cog):
                 if invite.code == invite2.code and invite.uses > invite2.uses:
                     em.add_field(name="Invite", value=f"Invited by {invite.inviter.mention} with code {invite.code}")
                     break
+        self.invites[member.guild.id] = invites
         await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
 
 
