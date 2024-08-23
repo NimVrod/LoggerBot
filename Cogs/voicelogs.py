@@ -34,7 +34,7 @@ class VoiceLogs(commands.Cog):
             #TODO: Add a check if user was moved or switched by themselves
             async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.member_move):
                 if entry.target.id == member.id:
-                    em = discord.Embed(title="Voice Moved", description=f"<@{member.id}> was moved from {before.channel.mention} to {after.channel.mention}", color=discord.Color.blue(), thumbnail=member.display_avatar.url)
+                    em = discord.Embed(title="Voice Moved", description=f"<@{member.id}> was moved from {before.channel.mention} to {after.channel.mention} by {entry.user.mention}", color=discord.Color.blue(), thumbnail=member.display_avatar.url)
                     await log.send_log(em, member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"]))
                     return
 
