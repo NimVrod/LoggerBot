@@ -21,6 +21,8 @@ def read_database(guild_id: int) -> dict:
         return json.load(file)
 
 def check_if_guild_in_db(guild_id: int) -> bool:
+    if not os.path.exists(f"Storage/{guild_id}.json"):
+        os.makedirs(f"Storage/{guild_id}.json", exist_ok=True)
     return os.path.exists(f"Storage/{guild_id}.json")
 
 def check_for_changes():
