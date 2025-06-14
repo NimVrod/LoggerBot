@@ -14,7 +14,13 @@ from Utils import database
 from Cogs import settings, voicelogs, chatlogs, joinlogs, auditlogs
 
 intents = discord.Intents(messages=True, guilds=True, members=True, message_content=True, voice_states=True, moderation=True)
+
+logger = logging.getLogger('discord')
+logger.setLevel(logging.WARNING)
 handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
+handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+logger.addHandler(handler)
+
 bot = commands.Bot(command_prefix='$$', intents=intents)
 
 
@@ -57,7 +63,7 @@ async def evalCommand(ctx, code: str):
         await ctx.respond(embed=em)
 
 load_dotenv()
-bot.run(os.getenv('TOKEN'), log_handler=handler)
+bot.run(os.getenv('TOKEN'))
 
 
 
