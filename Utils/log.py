@@ -1,7 +1,7 @@
 import typing
 import discord
 import datetime
-import database as db
+from Utils import database as db
 
 
 async def send_log(embed: discord.Embed, channel:discord.TextChannel) -> None:
