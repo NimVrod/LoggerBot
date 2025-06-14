@@ -17,6 +17,7 @@ def write_database(guild_id: int, db: dict) -> None:
         json.dump(db, file, indent=4)
 
 def read_database(guild_id: int) -> dict:
+    check_if_guild_in_db(guild_id)
     with open(f"Storage/{guild_id}.json", "r") as file:
         return json.load(file)
 
