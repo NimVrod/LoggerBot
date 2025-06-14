@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 import discord.ext.commands as commands
 import discord.ext.tasks as tasks
 import logging
+import logging.handlers
 import asyncio
 
 from pyexpat.errors import messages
@@ -13,7 +14,7 @@ from Utils import database
 from Cogs import settings, voicelogs, chatlogs, joinlogs, auditlogs
 
 intents = discord.Intents(messages=True, guilds=True, members=True, message_content=True, voice_states=True, moderation=True)
-logging.basicConfig(level=logging.INFO)
+handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
 bot = commands.Bot(command_prefix='$$', intents=intents)
 
 
@@ -56,7 +57,7 @@ async def evalCommand(ctx, code: str):
         await ctx.respond(embed=em)
 
 load_dotenv()
-bot.run(os.getenv('TOKEN'))
+bot.run(os.getenv('TOKEN'), log_handler=handler)
 
 
 

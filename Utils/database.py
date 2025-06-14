@@ -17,7 +17,8 @@ def write_database(guild_id: int, db: dict) -> None:
         json.dump(db, file, indent=4)
 
 def read_database(guild_id: int) -> dict:
-    check_if_guild_in_db(guild_id)
+    if not check_if_guild_in_db(guild_id):
+        raise FileNotFoundError(f"Baza danych dla gildii {guild_id} nie istnieje.")
     with open(f"Storage/{guild_id}.json", "r") as file:
         return json.load(file)
 
