@@ -11,7 +11,7 @@ async def send_log(embed: discord.Embed, channel:discord.TextChannel) -> None:
     await channel.send(f"<t:{round(datetime.datetime.now().timestamp())}:T> or <t:{round(datetime.datetime.now().timestamp())}:R>",embed=embed)
     guild = channel.guild
     guild_db = db.read_database(guild.id)
-    guild_db["LastLog"] = (datetime.datetime.now())
+    guild_db["LastLog"] = (datetime.datetime.now().timestamp())
     db.write_database(guild.id, guild_db)
 
     

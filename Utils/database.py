@@ -6,6 +6,7 @@ first_time = {"VoiceLogs": 0,
               "AttachmentLogs": 0,
               "JoinLogs": 0,
               "AuditLogs": 0,
+              "Last_log": 0,
               }
 
 def create_database(guild_id: int) -> None:
