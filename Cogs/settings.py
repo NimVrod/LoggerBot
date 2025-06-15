@@ -31,6 +31,9 @@ class SettingsView(discord.ui.View):
             return
 
         for key in self.guildSettings:
+            if key == "LastLog":
+                continue
+
             if key == button.label:
                 if self.guildSettings[key] == 0:
                     try:
@@ -133,7 +136,7 @@ class MyCog(commands.Cog):
             else:
                 em.description += f"❌ {key} inactive\n"
         em.set_footer(text="Find out more using /settings")
-        await member.send(embed=em)
+        # await member.send(embed=em) # Uncomment this line to send the embed to the member who joined
 
 
 
