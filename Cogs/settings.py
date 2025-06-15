@@ -113,7 +113,7 @@ class MyCog(commands.Cog):
 
     @commands.slash_command(name="set", description="Set the guildsettings")
     @commands.has_guild_permissions(manage_guild=True)
-    @option("option", "The setting you want to change", type=str, required=True, choices=[x for x in database.first_time.keys()])
+    @option("option", "The setting you want to change", type=str, required=True, choices=[x for x in database.first_time.keys() if x != "LastLog"])
     @option("channel", "The channel you want to set", type=discord.TextChannel, required=True)
     async def set(self, ctx, option: str, channel: discord.TextChannel):
         if not database.check_if_guild_in_db(ctx.guild.id):
