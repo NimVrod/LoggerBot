@@ -22,25 +22,32 @@ class VoiceLogs(commands.Cog):
             #First join voice channel
             em = discord.Embed(title=f"Voice join", description=f"<@{member.id}> joined {after.channel.mention}", color=discord.Color.green(), thumbnail=member.display_avatar.url)
             self.joins[member.id] = datetime.datetime.now()
-            await log.send_log(em, member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"]))
+            channel = member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"])
+            if channel:
+                await log.send_log(em, channel)
         elif before.channel is not None and after.channel is None:
             #Left voice channel
             em = discord.Embed(title="Voice Left", description=f"{member.mention} left {before.channel.mention}", color=discord.Color.red(), thumbnail=member.display_avatar.url)
             if member.id in self.joins:
                 time_spent: datetime.timedelta = datetime.datetime.now() - self.joins[member.id]
                 em.add_field(name="Time spent", value=f"Spent time in voice: {time_delta_to_string(time_spent)}", inline=False)
-            await log.send_log(em, member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"]))
+            channel = member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"])
+            if channel:
+                await log.send_log(em, channel)
         elif before.channel != after.channel:
             #TODO: Add a check if user was moved or switched by themselves
             async for entry in member.guild.audit_logs(limit=1):
                 if entry.action == discord.AuditLogAction.member_move:
                     em = discord.Embed(title="Voice Moved", description=f"<@{member.id}> was moved from {before.channel.mention} to {after.channel.mention} by {entry.user.mention}", color=discord.Color.blue(), thumbnail=member.display_avatar.url)
-                    await log.send_log(em, member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"]))
+                    channel = member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"])
+                    if channel:
+                        await log.send_log(em, channel)
                     return
 
             em = discord.Embed(title="Voice Switch", description=f"<@{member.id}> switched from {before.channel.mention} to {after.channel.mention}", color=discord.Color.yellow(), thumbnail=member.display_avatar.url)
-            await log.send_log(em, member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"]))
-            pass
+            channel = member.guild.get_channel(database.read_database(member.guild.id)["VoiceLogs"])
+            if channel:
+                await log.send_log(em, channel)
 
 
 def setup(bot):
