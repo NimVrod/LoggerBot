@@ -3,7 +3,7 @@ from discord import option
 from discord.ext import commands
 from discord.commands import Option
 from Utils import database
-from Utils.CommonViews.Confrim import ConfrimView
+from Utils.CommonViews.Confrim import ConfirmView
 
 class SettingsView(discord.ui.View):
 
