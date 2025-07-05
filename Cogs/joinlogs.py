@@ -31,7 +31,7 @@ class JoinLogs(commands.Cog):
 
         em = discord.Embed(title="Member Joined", description=f"{member.mention} joined the server", color=discord.Color.green(), thumbnail=member.display_avatar.url)
 
-        #Calcualte invite code]
+        #Calculate invite code
         invites = await member.guild.invites()
         for invite in invites:
             for invite2 in self.invites[member.guild.id]:
@@ -39,7 +39,9 @@ class JoinLogs(commands.Cog):
                     em.add_field(name="Invite", value=f"Invited by {invite.inviter.mention} with code {invite.code}")
                     break
         self.invites[member.guild.id] = invites
-        await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
+        channel = member.guild.get_channel(guildsettings["JoinLogs"])
+        if channel:
+            await log.send_log(em, channel)
 
 
     @commands.Cog.listener()
@@ -55,7 +57,9 @@ class JoinLogs(commands.Cog):
                 em = discord.Embed(title="Member Kicked", description=f"{member.mention} was kicked from the server",
                                    color=discord.Color.red(), thumbnail=member.display_avatar.url)
                 em.add_field(name="Kicked by", value=entry.user.mention)
-                await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
+                channel = member.guild.get_channel(guildsettings["JoinLogs"])
+                if channel:
+                    await log.send_log(em, channel)
                 return
 
         #Calculate whether the member left or was banned
@@ -64,10 +68,14 @@ class JoinLogs(commands.Cog):
                 em = discord.Embed(title="Member Banned", description=f"{member.mention} was banned from the server",
                                    color=discord.Color.red(), thumbnail=member.display_avatar.url)
                 em.add_field(name="Banned by", value=entry.user.mention)
-                await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
+                channel = member.guild.get_channel(guildsettings["JoinLogs"])
+                if channel:
+                    await log.send_log(em, channel)
                 return
 
 
         #Member left
         em = discord.Embed(title="Member Left", description=f"{member.mention} left the server", color=discord.Color.red(), thumbnail=member.display_avatar.url)
-        await log.send_log(em, member.guild.get_channel(guildsettings["JoinLogs"]))
+        channel = member.guild.get_channel(guildsettings["JoinLogs"])
+        if channel:
+            await log.send_log(em, channel)

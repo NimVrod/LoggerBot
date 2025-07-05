@@ -2,7 +2,7 @@ import discord
 import builtins
 from typing import Callable
 
-class ConfrimView(discord.ui.View):
+class ConfirmView(discord.ui.View):
     def __init__(self, author: discord.User, confirm_action: Callable[[], None], cancel_action: Callable[[], None]):
         super().__init__()
         self.author = author
