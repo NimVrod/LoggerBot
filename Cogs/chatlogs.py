@@ -13,6 +13,8 @@ class Chatlogs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_delete(self, message: discord.Message):
+        if message.guild is None:
+            return
         guildsettings = database.read_database(message.guild.id)
 
         if guildsettings["ChatLogs"] == 0 or message.author.bot:
@@ -22,13 +24,16 @@ class Chatlogs(commands.Cog):
         if not channel:
             return
 
-        em = discord.Embed(title="Message Deleted", description=f"{message.author.mention} deleted in {message.channel.mention}", color=discord.Color.red(), thumbnail=message.author.display_avatar.url)
+        em = discord.Embed(title="Message Deleted", description=f"{message.author.mention} deleted in {message.channel.mention}", color=discord.Color.red())
+        em.set_thumbnail(url=message.author.display_avatar.url)
         em.add_field(name="Content", value=message.content, inline=False)
         em.add_field(name="Attachments", value=self.attachments_to_url_string(message.attachments), inline=False)
         await log.send_log(em, channel)
 
     @commands.Cog.listener()
     async def on_bulk_message_delete(self, messages: list[discord.Message]):
+        if not messages:
+            return
         guildsettings = database.read_database(messages[0].guild.id)
 
         if guildsettings["ChatLogs"] == 0:
@@ -49,6 +54,8 @@ class Chatlogs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message_edit(self, before: discord.Message, after: discord.Message):
+        if before.guild is None:
+            return
         guildsettings = database.read_database(before.guild.id)
 
         if guildsettings["ChatLogs"] == 0 or before.author.bot:
@@ -58,7 +65,8 @@ class Chatlogs(commands.Cog):
         if not channel:
             return
 
-        em = discord.Embed(title="Message Edited", description=f"{before.author.mention} edited in {before.channel.mention}", color=discord.Color.yellow(), thumbnail=before.author.display_avatar.url)
+        em = discord.Embed(title="Message Edited", description=f"{before.author.mention} edited in {before.channel.mention}", color=discord.Color.yellow())
+        em.set_thumbnail(url=before.author.display_avatar.url)
         em.add_field(name="Before", value=before.content, inline=False)
         em.add_field(name="Before Attachments", value=self.attachments_to_url_string(before.attachments), inline=False)
         em.add_field(name="After", value=after.content, inline=False)
@@ -67,6 +75,8 @@ class Chatlogs(commands.Cog):
 
     @commands.Cog.listener()
     async def on_message(self, message : discord.Message):
+        if message.guild is None:
+            return
         guildsettings = database.read_database(message.guild.id)
 
         if guildsettings["AttachmentLogs"] == 0 or message.author.bot:
@@ -79,7 +89,12 @@ class Chatlogs(commands.Cog):
                 
             em = discord.Embed(title="Attachment Log",
                                description=f"{message.author.mention} attachments in {message.channel.mention}",
-                               color=discord.Color.green(), thumbnail=message.author.display_avatar.url)
+                               color=discord.Color.green())
+            em.set_thumbnail(url=message.author.display_avatar.url)
             await log.send_log(em, channel)
             await channel.send(files=[await x.to_file() for x in message.attachments])
+
+
+async def setup(bot):
+    await bot.add_cog(Chatlogs(bot))
 

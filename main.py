@@ -1,69 +1,113 @@
-import discord
+import asyncio
+import logging
 import os
-from dotenv import load_dotenv
+
+import discord
 import discord.ext.commands as commands
 import discord.ext.tasks as tasks
-import logging
-import logging.handlers
-import asyncio
-
-from pyexpat.errors import messages
+from discord import app_commands
+from dotenv import load_dotenv
 
 from Utils import database
 
-from Cogs import settings, voicelogs, chatlogs, joinlogs, auditlogs
+intents = discord.Intents.default()
+intents.messages = True
+intents.guilds = True
+intents.members = True
+intents.message_content = True
+intents.voice_states = True
 
-intents = discord.Intents(messages=True, guilds=True, members=True, message_content=True, voice_states=True, moderation=True)
-
-logger = logging.getLogger('discord')
+logger = logging.getLogger("discord")
 logger.setLevel(logging.WARNING)
-handler = logging.FileHandler(filename='discord.log', encoding='utf-8', mode='w')
-handler.setFormatter(logging.Formatter('%(asctime)s:%(levelname)s:%(name)s: %(message)s'))
+handler = logging.FileHandler(filename="discord.log", encoding="utf-8", mode="w")
+handler.setFormatter(logging.Formatter("%(asctime)s:%(levelname)s:%(name)s: %(message)s"))
 logger.addHandler(handler)
 
-bot = commands.Bot(command_prefix='$$', intents=intents)
+
+class LoggerBot(commands.Bot):
+    def __init__(self) -> None:
+        super().__init__(command_prefix="$$", intents=intents)
+        self.synced = False
+
+    async def setup_hook(self) -> None:
+        for extension in (
+            "Cogs.settings",
+            "Cogs.voicelogs",
+            "Cogs.chatlogs",
+            "Cogs.joinlogs",
+            "Cogs.auditlogs",
+        ):
+            await self.load_extension(extension)
 
 
-bot.add_cog(settings.MyCog(bot))
-bot.add_cog(voicelogs.VoiceLogs(bot))
-bot.add_cog(chatlogs.Chatlogs(bot))
-bot.add_cog(joinlogs.JoinLogs(bot))
-bot.add_cog(auditlogs.AuditLogs(bot))
+bot = LoggerBot()
+
 
 @tasks.loop(minutes=10)
-async def presence_update():
-    await bot.change_presence(activity=discord.Game(name="Guilds: " + str(len(bot.guilds))))
+async def presence_update() -> None:
+    await bot.change_presence(activity=discord.Game(name=f"Guilds: {len(bot.guilds)}"))
+
 
 @bot.event
-async def on_ready():
+async def on_ready() -> None:
     print("Bot running, guilds: ", len(bot.guilds))
     await bot.change_presence(activity=discord.Game(name="Recently updated"))
     for guild in bot.guilds:
         if not database.check_if_guild_in_db(guild.id):
             database.create_database(guild.id)
     database.check_for_changes()
-    await asyncio.sleep(600)
-    presence_update.start()
 
-@bot.slash_command(name="ping", description="Check the bot's latency")
-async def ping(ctx):
+    if not bot.synced:
+        await bot.tree.sync()
+        bot.synced = True
+
+    if not presence_update.is_running():
+        await asyncio.sleep(600)
+        presence_update.start()
+
+
+@bot.tree.command(name="ping", description="Check the bot's latency")
+async def ping(interaction: discord.Interaction) -> None:
     em = discord.Embed(title="Pong!", description=f"{round(bot.latency * 1000)}ms", color=discord.Color.green())
-    await ctx.respond(embed=em)
+    await interaction.response.send_message(embed=em)
 
 
-@bot.slash_command(name="eval", description="Evaluate code")
-@commands.is_owner()
-async def evalCommand(ctx, code: str):
+async def owner_only(interaction: discord.Interaction) -> bool:
+    return await bot.is_owner(interaction.user)
+
+
+@bot.tree.command(name="eval", description="Evaluate code")
+@app_commands.check(owner_only)
+@app_commands.describe(code="Evaluate code")
+async def eval_command(interaction: discord.Interaction, code: str) -> None:
     try:
         result = eval(code)
-        em = discord.Embed(title="Eval", description=result, color=discord.Color.green())
-        await ctx.respond(embed=em)
+        em = discord.Embed(title="Eval", description=str(result), color=discord.Color.green())
+        await interaction.response.send_message(embed=em)
     except Exception as e:
-        em = discord.Embed(title="Error", description=e, color=discord.Color.red())
-        await ctx.respond(embed=em)
+        em = discord.Embed(title="Error", description=str(e), color=discord.Color.red())
+        await interaction.response.send_message(embed=em)
 
-load_dotenv()
-bot.run(os.getenv('TOKEN'))
+
+@eval_command.error
+async def eval_command_error(interaction: discord.Interaction, error: app_commands.AppCommandError) -> None:
+    if isinstance(error, app_commands.CheckFailure):
+        await interaction.response.send_message("Only the bot owner can use this command.", ephemeral=True)
+        return
+    raise error
+
+
+async def main() -> None:
+    load_dotenv()
+    token = os.getenv("TOKEN")
+    if token is None:
+        raise RuntimeError("Missing TOKEN environment variable.")
+    async with bot:
+        await bot.start(token)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
 
 
 

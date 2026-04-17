@@ -7,7 +7,7 @@ class AuditLogs(commands.Cog):
         self.bot: commands.Bot = bot
 
     @commands.Cog.listener()
-    async def on_audit_log_entry(self, entry:discord.AuditLogEntry):
+    async def on_audit_log_entry_create(self, entry:discord.AuditLogEntry):
         guildSettings = database.read_database(entry.guild.id)
         if guildSettings["AuditLogs"] == 0:
             return
@@ -19,5 +19,11 @@ class AuditLogs(commands.Cog):
         user_mention = entry.user.mention if entry.user else "Unknown User"
         thumbnail_url = entry.user.display_avatar.url if entry.user else None
         
-        em = discord.Embed(title="Audit log entry", description=f"Action: {entry.action}\nBy: {user_mention}\nReason: {entry.reason}\nTarget: {entry.target}", color=discord.Color.blurple(), thumbnail=thumbnail_url)
+        em = discord.Embed(title="Audit log entry", description=f"Action: {entry.action}\nBy: {user_mention}\nReason: {entry.reason}\nTarget: {entry.target}", color=discord.Color.blurple())
+        if thumbnail_url:
+            em.set_thumbnail(url=thumbnail_url)
         await log.send_log(em, channel)
+
+
+async def setup(bot):
+    await bot.add_cog(AuditLogs(bot))

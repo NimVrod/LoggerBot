@@ -1,12 +1,14 @@
-FROM python:3.11-slim
+FROM python:3.12-slim
 
 LABEL authors="hdec0"
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir uv
+
+COPY pyproject.toml uv.lock ./
+RUN uv sync --frozen --no-dev
 
 COPY . .
 
-CMD ["python", "main.py"]
+CMD ["uv", "run", "python", "main.py"]

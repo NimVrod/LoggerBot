@@ -29,7 +29,8 @@ class JoinLogs(commands.Cog):
         if guildsettings["JoinLogs"] == 0:
             return
 
-        em = discord.Embed(title="Member Joined", description=f"{member.mention} joined the server", color=discord.Color.green(), thumbnail=member.display_avatar.url)
+        em = discord.Embed(title="Member Joined", description=f"{member.mention} joined the server", color=discord.Color.green())
+        em.set_thumbnail(url=member.display_avatar.url)
 
         #Calculate invite code
         invites = await member.guild.invites()
@@ -55,7 +56,8 @@ class JoinLogs(commands.Cog):
         async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.kick):
             if entry.target.id == member.id:
                 em = discord.Embed(title="Member Kicked", description=f"{member.mention} was kicked from the server",
-                                   color=discord.Color.red(), thumbnail=member.display_avatar.url)
+                                   color=discord.Color.red())
+                em.set_thumbnail(url=member.display_avatar.url)
                 em.add_field(name="Kicked by", value=entry.user.mention)
                 channel = member.guild.get_channel(guildsettings["JoinLogs"])
                 if channel:
@@ -66,7 +68,8 @@ class JoinLogs(commands.Cog):
         async for entry in member.guild.audit_logs(limit=1, action=discord.AuditLogAction.ban):
             if entry.target.id == member.id:
                 em = discord.Embed(title="Member Banned", description=f"{member.mention} was banned from the server",
-                                   color=discord.Color.red(), thumbnail=member.display_avatar.url)
+                                   color=discord.Color.red())
+                em.set_thumbnail(url=member.display_avatar.url)
                 em.add_field(name="Banned by", value=entry.user.mention)
                 channel = member.guild.get_channel(guildsettings["JoinLogs"])
                 if channel:
@@ -75,7 +78,12 @@ class JoinLogs(commands.Cog):
 
 
         #Member left
-        em = discord.Embed(title="Member Left", description=f"{member.mention} left the server", color=discord.Color.red(), thumbnail=member.display_avatar.url)
+        em = discord.Embed(title="Member Left", description=f"{member.mention} left the server", color=discord.Color.red())
+        em.set_thumbnail(url=member.display_avatar.url)
         channel = member.guild.get_channel(guildsettings["JoinLogs"])
         if channel:
             await log.send_log(em, channel)
+
+
+async def setup(bot):
+    await bot.add_cog(JoinLogs(bot))
